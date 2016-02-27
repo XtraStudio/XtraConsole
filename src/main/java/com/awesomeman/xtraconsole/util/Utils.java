@@ -41,21 +41,22 @@ public class Utils {
         this.node = node;
         this.loader = loader;
         if(!file.exists()) {
+            XtraConsole.instance.logger.info("Creating first time configuration options.");
             try {
                 file.createNewFile();
             } catch(IOException e) {
                 XtraConsole.instance.logger.error("Could not create config file!");
                 e.printStackTrace();
             }
-            initNode();
-            this.node.getNode("say").setValue("[Console] ").setComment("What to prefix the message with when using /say");
+            loadNode();
+            this.node.getNode("say").setValue("&b[Console]&r ").setComment("What to prefix the message with when using /say");
             saveNode();
         } else {
-            initNode();
+            loadNode();
         }
     }
     
-    private void initNode() {
+    private void loadNode() {
         try {
             node = loader.load();
         } catch(IOException e) {
@@ -75,9 +76,11 @@ public class Utils {
     
     public void setSay(String say) {
         node.getNode("say").setValue(say.concat(" "));
+        saveNode();
     }
     
     public String getSay() {
+        loadNode();
         return node.getNode("say").getString();
     }
 }
