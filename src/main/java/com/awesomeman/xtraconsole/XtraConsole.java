@@ -77,7 +77,7 @@ public class XtraConsole {
         CommandSpec setSayCommand = CommandSpec.builder()
                 .permission("xtraconsole.set")
                 .description(Text.of("Sets the say prefix."))
-                .arguments(GenericArguments.string(Text.of("say")))
+                .arguments(GenericArguments.remainingJoinedStrings(Text.of("say")))
                 .executor(new SetSayCommand())
                 .build();
         
