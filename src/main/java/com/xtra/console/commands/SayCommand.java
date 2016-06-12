@@ -28,30 +28,54 @@ package com.xtra.console.commands;
 import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.args.CommandElement;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
-import com.xtra.console.XtraConsole;
+import com.xtra.core.command.annotation.RegisterCommand;
+import com.xtra.core.command.base.CommandBase;
+import com.xtra.core.config.Config;
+import com.xtra.core.config.ConfigHandler;
 
-public class SayCommand implements CommandExecutor {
+@RegisterCommand
+public class SayCommand extends CommandBase<CommandSource> {
 
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    @Override
+    public String[] aliases() {
+        return new String[] {"say"};
+    }
+
+    @Override
+    public CommandElement[] args() {
+        return new CommandElement[] {GenericArguments.remainingJoinedStrings(Text.of("message"))};
+    }
+
+    @Override
+    public String description() {
+        return "Says a message as if it were from the console!";
+    }
+
+    @Override
+    public String permission() {
+        return "xtraconsole.say";
+    }
+
+    @Override
+    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Optional<String> optionalMessage = args.<String>getOne("message");
         if (!optionalMessage.isPresent()) {
-            src.sendMessage(Text.of(TextColors.RED, "Message arg is not specified!"));
+            src.sendMessage(Text.of(TextColors.RED, "Message argument not specified!"));
             return CommandResult.empty();
         }
-        String message = optionalMessage.get();
-        String console = XtraConsole.instance.utils.getSay();
-        message = console.concat(message);
-        Text sayMessage = TextSerializers.FORMATTING_CODE.deserialize(message);
-        Sponge.getServer().getBroadcastChannel().send(sayMessage);
+        Config config = ConfigHandler.getConfig(com.xtra.console.config.Config.class);
+        config.load();
+        String message = config.rootNode().getNode("say").getString().concat(optionalMessage.get());
+        Sponge.getServer().getBroadcastChannel().send(TextSerializers.FORMATTING_CODE.deserialize(message));
         return CommandResult.success();
     }
 }

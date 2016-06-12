@@ -1,7 +1,9 @@
 plugins {
     id 'java'
+    id 'maven'
     id 'net.minecrell.licenser' version '0.1.5'
     id 'net.ellune.blossom' version '1.0.1'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
 sourceCompatibility = '1.8'
@@ -14,13 +16,13 @@ repositories {
         url 'http://repo.spongepowered.org/maven/'
     }
     maven {
-        name 'minecrell-releases'
-        url 'http://repo.minecrell.net/releases'
+        url 'https://jitpack.io'
     }
 }
 
 dependencies {
     compile "org.spongepowered:spongeapi:4.1.0-SNAPSHOT"
+    compile "com.github.XtraStudio:XtraCore:master-SNAPSHOT"
 }
 
 blossom {
@@ -40,6 +42,18 @@ license {
     header rootProject.file('HEADER.txt')
     include '**/*.java'
     style.java = 'JAVADOC'
+}
+
+shadowJar {
+    dependencies {
+        include(dependency('com.github.XtraStudio:XtraCore'))
+    }
+    relocate 'com.xtra.core', 'dependencies.com.xtra.console'
+    classifier = ''
+}
+
+artifacts {
+    archives shadowJar
 }
 
 task wrapper(type: Wrapper) {

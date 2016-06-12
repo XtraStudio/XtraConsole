@@ -23,41 +23,16 @@
  * SOFTWARE.
  */
 
-package com.xtra.console;
+package com.xtra.console.config;
 
-import org.slf4j.Logger;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.GameReloadEvent;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.plugin.Plugin;
+import com.xtra.core.config.annotation.RegisterConfig;
+import com.xtra.core.config.base.ConfigBase;
 
-import com.google.inject.Inject;
-import com.xtra.console.config.Config;
-import com.xtra.core.Core;
-import com.xtra.core.command.CommandRegistrar;
-import com.xtra.core.config.ConfigHandler;
+@RegisterConfig(sharedRoot = true, configName = "xtraconsole")
+public class Config extends ConfigBase {
 
-@Plugin(name = PluginInfo.NAME, id = PluginInfo.ID, version = PluginInfo.VERSION, description = PluginInfo.DESCRIPTION)
-public class XtraConsole {
-
-    private @Inject Logger logger;
-
-    @Listener
-    public void preInit(GamePreInitializationEvent event) {
-        logger.info("Initializing XtraConsole version " + PluginInfo.VERSION);
-
-        Core.initialize(this);
-        ConfigHandler.create();
-    }
-
-    @Listener
-    public void init(GameInitializationEvent event) {
-        CommandRegistrar.create();
-    }
-
-    @Listener
-    public void reload(GameReloadEvent event) {
-        ConfigHandler.getConfig(Config.class).load();
+    @Override
+    public void populate() {
+        this.rootNode().getNode("say").setValue("&b[Console]&r ").setComment("What to prefix the message with when using /say");
     }
 }

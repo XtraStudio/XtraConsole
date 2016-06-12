@@ -27,25 +27,52 @@ package com.xtra.console.commands;
 
 import java.util.Optional;
 
-import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.args.CommandElement;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
-import com.xtra.console.XtraConsole;
+import com.xtra.core.command.annotation.RegisterCommand;
+import com.xtra.core.command.base.CommandBase;
+import com.xtra.core.config.Config;
+import com.xtra.core.config.ConfigHandler;
 
-public class SetSayCommand implements CommandExecutor {
+@RegisterCommand
+public class SetSayCommand extends CommandBase<CommandSource> {
 
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    @Override
+    public String[] aliases() {
+        return new String[] {"set-console", "setconsole"};
+    }
+
+    @Override
+    public CommandElement[] args() {
+        return new CommandElement[] {GenericArguments.remainingJoinedStrings(Text.of("say"))};
+    }
+
+    @Override
+    public String description() {
+        return "Sets the say prefix.";
+    }
+
+    @Override
+    public String permission() {
+        return "xtraconsole.set";
+    }
+
+    @Override
+    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Optional<String> say = args.<String>getOne("say");
         if (!say.isPresent()) {
             src.sendMessage(Text.of(TextColors.RED, "Console arg is not specified!"));
             return CommandResult.empty();
         }
-        XtraConsole.instance.utils.setSay(say.get());
+        Config config = ConfigHandler.getConfig(com.xtra.console.config.Config.class);
+        config.rootNode().getNode("say").setValue(say.get());
+        config.save();
         src.sendMessage(Text.of(TextColors.GOLD, "Successfully set the console prefix."));
         return CommandResult.success();
     }
